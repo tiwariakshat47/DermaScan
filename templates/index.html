@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Acne Classification System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        h1 {
+            margin: 0;
+        }
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        .upload-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            width: 50%;
+        }
+        .upload-section input[type="file"] {
+            margin: 20px 0;
+        }
+        .upload-section button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .upload-section button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Acne Classification System</h1>
+    </header>
+
+    <main>
+        <div class="upload-section">
+            <h2>Upload Your Face Image</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="imageUpload" accept="image/*" required>
+                <br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div id="result" style="margin-top: 20px;"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Acne Classification System</p>
+    </footer>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('imageUpload');
+            const resultDiv = document.getElementById('result');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                resultDiv.innerHTML = `<p>Processing image: ${file.name}</p>`;
+                
+                // Here, you would add code to handle the image upload to your backend (e.g., with fetch API)
+                // For demonstration purposes, we just show the file name.
+                resultDiv.innerHTML += `<p>Image uploaded successfully!</p>`;
+            } else {
+                resultDiv.innerHTML = '<p>Please select an image file.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
