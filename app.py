@@ -7,19 +7,19 @@ import tensorflow as tf
 app = Flask(__name__)
 
 cam = None  
-lock = threading.Lock() 
+lock = threading.Lock()
 
-# Load your TensorFlow model (assuming it's saved in models/segmentation_model.h5)
+# Load your TensorFlow model (adjust the path to your model if needed)
 model = tf.keras.models.load_model('models/segmentation_model.h5')
 
-# Define class names for the CIFAR-10 dataset
-class_names = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
+# Define class names (adjust this if you're not using CIFAR-10 classes)
+class_names = ['blackheads', 'dark spot', 'nodules', 'papules', 'pustules', 'whiteheads']
 
-# Define input size based on your model's requirements
-input_size = (32, 32)  # Adjust if needed, depending on your model input size
+# Update input size based on your model's requirements
+input_size = (62, 62)  # The model expects images of size 62x62 with 3 channels
 
 def preprocess_image(frame):
-    img = cv2.resize(frame, input_size)  # Resize to model's input size
+    img = cv2.resize(frame, input_size)  # Resize to (62, 62)
     img = img / 255.0  # Normalize the pixel values
     img = np.expand_dims(img, axis=0)  # Add batch dimension
     return img
@@ -55,7 +55,7 @@ def generate_frames():
 
             # Draw bounding box and display confidence level
             height, width, _ = frame.shape
-            cv2.rectangle(frame, (10, 10), (width - 10, height - 10), (255, 0, 0), 2)  # Adjust bounding box coordinates as needed
+            cv2.rectangle(frame, (10, 10), (width - 10, height - 10), (255, 0, 0), 2)
             cv2.putText(frame, f'Predicted: {predicted_class_name}', (15, 30), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
             cv2.putText(frame, f'Confidence: {confidence:.2f}', (15, 60), 
@@ -82,7 +82,7 @@ def start_camera():
     global cam
     with lock:
         if cam is None:
-            cam = cv2.VideoCapture(0)  
+            cam = cv2.VideoCapture(0)  # Start the webcam
     return "Camera started", 200
 
 if __name__ == '__main__':

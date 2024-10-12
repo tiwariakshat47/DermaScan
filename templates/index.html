@@ -33,10 +33,22 @@
             margin: 0 auto;
             width: 50%;
         }
-        .upload-section input[type="file"] {
-            margin: 20px 0;
+        .chat-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            width: 50%;
+            text-align: left;
         }
-        .upload-section button {
+        .chat-section input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .chat-section button {
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
@@ -44,8 +56,16 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .upload-section button:hover {
+        .chat-section button:hover {
             background-color: #45a049;
+        }
+        .chat-log {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .chat-message {
+            margin: 5px 0;
         }
         footer {
             text-align: center;
@@ -72,10 +92,17 @@
             <h2>Live Camera Feed</h2>
             <p id="loadingMessage">Waiting for camera access...</p>
             <div style="text-align: center;">
-                <img id="videoFeed" width="1000" height="480" style="display:none; margin: auto; display: block;">
+                <img id="videoFeed" width="800" height="480" style="display:none; margin: auto; display: block;">
             </div>
-            
         </div>
+        
+        <div class="chat-section">
+            <h2>Chat with our Expert</h2>
+            <div class="chat-log" id="chatLog"></div>
+            <input type="text" id="userInput" placeholder="Type your ailment here...">
+            <button id="sendButton">Send</button>
+        </div>
+
         <div id="result" style="margin-top: 20px;"></div>
     </main>
 
@@ -87,6 +114,9 @@
         document.addEventListener('DOMContentLoaded', function () {
             const videoFeed = document.getElementById('videoFeed');
             const loadingMessage = document.getElementById('loadingMessage');
+            const sendButton = document.getElementById('sendButton');
+            const userInput = document.getElementById('userInput');
+            const chatLog = document.getElementById('chatLog');
 
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function (stream) {
@@ -107,6 +137,26 @@
                     loadingMessage.textContent = "Camera access denied or not available.";
                     console.error('Error accessing camera: ', err);
                 });
+
+            sendButton.addEventListener('click', async function () {
+                const message = userInput.value;
+                if (message.trim() === '') return;
+
+                chatLog.innerHTML += `<div class="chat-message"><strong>You:</strong> ${message}</div>`;
+                userInput.value = '';
+
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                chatLog.innerHTML += `<div class="chat-message"><strong>Expert:</strong> ${data.reply}</div>`;
+                chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
+            });
         });
     </script>
 </body>
