@@ -1,1 +1,5 @@
 # DermaScan
+
+clone: 
+
+install requirements: 
