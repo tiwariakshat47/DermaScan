@@ -46,6 +46,8 @@ def generate_frames():
             success, frame = cam.read()
             if not success:
                 break
+            
+            frame = cv2.flip(frame, 1)
 
             # Perform prediction
             predicted_class_index, confidence = predict_class(frame)
