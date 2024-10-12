@@ -12,30 +12,29 @@ lock = threading.Lock()
 # Load your TensorFlow model (assuming it's saved in models/segmentation_model.h5)
 model = tf.keras.models.load_model('models/segmentation_model.h5')
 
+# Define class names for the CIFAR-10 dataset
+class_names = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
+
+# Define input size based on your model's requirements
+input_size = (32, 32)  # Adjust if needed, depending on your model input size
+
 def preprocess_image(frame):
-    img = cv2.resize(frame, (224, 224))  # Resize to model's input size
+    img = cv2.resize(frame, input_size)  # Resize to model's input size
     img = img / 255.0  # Normalize the pixel values
     img = np.expand_dims(img, axis=0)  # Add batch dimension
     return img
 
-def predict_segmentation(frame):
+def predict_class(frame):
     img = preprocess_image(frame)
-    prediction = model.predict(img)[0]  # Get the mask prediction
 
-    # Resize the predicted mask back to original frame size
-    mask = cv2.resize(prediction, (frame.shape[1], frame.shape[0]))
+    # Make prediction
+    prediction = model.predict(img)
 
-    # Threshold the mask to convert probabilities to binary (0 or 1)
-    mask = (mask > 0.5).astype(np.uint8) * 255
+    # Get the predicted class index and confidence
+    predicted_class_index = np.argmax(prediction, axis=1)[0]
+    confidence = np.max(prediction)  # Get the confidence level
 
-    # Apply the mask as an overlay (you can use different colors for different acne classes)
-    overlay = frame.copy()
-    overlay[mask == 255] = (0, 255, 0)  # Green for detected areas
-
-    # Blend the overlay with the original frame
-    blended_frame = cv2.addWeighted(frame, 0.7, overlay, 0.3, 0)
-
-    return blended_frame
+    return predicted_class_index, confidence
 
 def generate_frames():
     global cam
@@ -48,8 +47,17 @@ def generate_frames():
             if not success:
                 break
 
-            # Perform segmentation and overlay the result
-            frame = predict_segmentation(frame)
+            # Perform prediction
+            predicted_class_index, confidence = predict_class(frame)
+            predicted_class_name = class_names[predicted_class_index]
+
+            # Draw bounding box and display confidence level
+            height, width, _ = frame.shape
+            cv2.rectangle(frame, (10, 10), (width - 10, height - 10), (255, 0, 0), 2)  # Adjust bounding box coordinates as needed
+            cv2.putText(frame, f'Predicted: {predicted_class_name}', (15, 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.putText(frame, f'Confidence: {confidence:.2f}', (15, 60), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
 
             # Encode the frame and send it to the client
             ret, buffer = cv2.imencode('.jpg', frame)
