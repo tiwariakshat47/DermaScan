@@ -1,43 +1,44 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, jsonify
 import cv2
 import numpy as np
 import threading
 import tensorflow as tf
+import openai
+import os
 
 app = Flask(__name__)
 
+# Configure your OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 cam = None  
 lock = threading.Lock()
+last_prediction = {"class": None, "confidence": 0}  # Store last prediction
 
-# Load your TensorFlow model (adjust the path to your model if needed)
+# Load your TensorFlow model
 model = tf.keras.models.load_model('models/segmentation_model.h5')
 
-# Define class names (adjust this if you're not using CIFAR-10 classes)
+# Define class names
 class_names = ['blackheads', 'dark spot', 'nodules', 'papules', 'pustules', 'whiteheads']
 
 # Update input size based on your model's requirements
-input_size = (62, 62)  # The model expects images of size 62x62 with 3 channels
+input_size = (62, 62)
 
 def preprocess_image(frame):
-    img = cv2.resize(frame, input_size)  # Resize to (62, 62)
-    img = img / 255.0  # Normalize the pixel values
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    img = cv2.resize(frame, input_size)
+    img = img / 255.0
+    img = np.expand_dims(img, axis=0)
     return img
 
 def predict_class(frame):
     img = preprocess_image(frame)
-
-    # Make prediction
     prediction = model.predict(img)
-
-    # Get the predicted class index and confidence
     predicted_class_index = np.argmax(prediction, axis=1)[0]
-    confidence = np.max(prediction)  # Get the confidence level
-
+    confidence = np.max(prediction)
     return predicted_class_index, confidence
 
 def generate_frames():
-    global cam
+    global cam, last_prediction
     while True:
         if cam is None:
             continue  
@@ -49,9 +50,15 @@ def generate_frames():
             
             frame = cv2.flip(frame, 1)
 
-            # Perform prediction
+            # Perform prediction on each frame
             predicted_class_index, confidence = predict_class(frame)
             predicted_class_name = class_names[predicted_class_index]
+
+            # Store the latest prediction
+            last_prediction = {
+                "class": predicted_class_name,
+                "confidence": confidence
+            }
 
             # Draw bounding box and display confidence level
             height, width, _ = frame.shape
@@ -68,6 +75,22 @@ def generate_frames():
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+def get_openai_response(predicted_class_name):
+    prompt = f"What can you suggest for treating {predicted_class_name}?"
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a kind medical assistant providing skincare advice."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        reply = response.choices[0].message.content
+        return reply
+    except Exception as e:
+        print(f"Error calling OpenAI API: {e}")
+        return "Sorry, I couldn't provide advice at this moment."
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -82,8 +105,17 @@ def start_camera():
     global cam
     with lock:
         if cam is None:
-            cam = cv2.VideoCapture(0)  # Start the webcam
+            cam = cv2.VideoCapture(0)
     return "Camera started", 200
+
+@app.route('/get_advice')
+def get_advice():
+    # Use the latest prediction to generate advice
+    if last_prediction["class"]:
+        openai_response = get_openai_response(last_prediction["class"])
+        return jsonify({'advice': openai_response})
+    else:
+        return jsonify({'advice': "No prediction available yet."})
 
 if __name__ == '__main__':
     app.run(debug=True)

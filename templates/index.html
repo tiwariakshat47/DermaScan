@@ -33,39 +33,19 @@
             margin: 0 auto;
             width: 50%;
         }
-        .chat-section {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin: 20px auto;
-            width: 50%;
-            text-align: left;
+        .ai-advice {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
         }
-        .chat-section input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        .chat-section button {
+        #showAdviceButton {
+            margin-top: 10px;
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-        }
-        .chat-section button:hover {
-            background-color: #45a049;
-        }
-        .chat-log {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-        .chat-message {
-            margin: 5px 0;
         }
         footer {
             text-align: center;
@@ -75,10 +55,6 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-        }
-        #loadingMessage {
-            margin-top: 20px;
-            color: #555;
         }
     </style>
 </head>
@@ -94,16 +70,16 @@
             <div style="text-align: center;">
                 <img id="videoFeed" width="800" height="480" style="display:none; margin: auto; display: block;">
             </div>
+            <button id="showAdviceButton">Show AI Advice</button>
+            <div class="ai-advice" id="aiAdvice"></div>
         </div>
-        
+
         <div class="chat-section">
             <h2>Chat with our Expert</h2>
             <div class="chat-log" id="chatLog"></div>
             <input type="text" id="userInput" placeholder="Type your ailment here...">
             <button id="sendButton">Send</button>
         </div>
-
-        <div id="result" style="margin-top: 20px;"></div>
     </main>
 
     <footer>
@@ -112,52 +88,49 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const videoFeed = document.getElementById('videoFeed');
-            const loadingMessage = document.getElementById('loadingMessage');
-            const sendButton = document.getElementById('sendButton');
-            const userInput = document.getElementById('userInput');
-            const chatLog = document.getElementById('chatLog');
+    const videoFeed = document.getElementById('videoFeed');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const showAdviceButton = document.getElementById('showAdviceButton');
+    const aiAdvice = document.getElementById('aiAdvice');
 
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    loadingMessage.textContent = "Camera access granted, loading video...";
-
-                    fetch('/start_camera')
-                        .then(response => {
-                            if (response.ok) {
-                                const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
-                                videoFeed.src = videoFeedUrl;
-                                videoFeed.style.display = 'block'; 
-                                loadingMessage.style.display = 'none';
-                            }
-                        })
-                        .catch(err => console.error('Error starting camera on server:', err));
+    // Request camera access
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+            loadingMessage.textContent = "Camera access granted, loading video...";
+            fetch('/start_camera')
+                .then(response => {
+                    if (response.ok) {
+                        const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
+                        videoFeed.src = videoFeedUrl;
+                        videoFeed.style.display = 'block';
+                        loadingMessage.style.display = 'none';
+                    }
                 })
-                .catch(function (err) {
-                    loadingMessage.textContent = "Camera access denied or not available.";
-                    console.error('Error accessing camera: ', err);
-                });
-
-            sendButton.addEventListener('click', async function () {
-                const message = userInput.value;
-                if (message.trim() === '') return;
-
-                chatLog.innerHTML += `<div class="chat-message"><strong>You:</strong> ${message}</div>`;
-                userInput.value = '';
-
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-
-                const data = await response.json();
-                chatLog.innerHTML += `<div class="chat-message"><strong>Expert:</strong> ${data.reply}</div>`;
-                chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
-            });
+                .catch(err => console.error('Error starting camera on server:', err));
+        })
+        .catch(function (err) {
+            loadingMessage.textContent = "Camera access denied or not available.";
+            console.error('Error accessing camera: ', err);
         });
+
+    // Fetch AI advice only when the button is clicked
+    showAdviceButton.addEventListener('click', async function () {
+        try {
+            const response = await fetch('/get_advice'); // Generate advice only here
+            if (response.ok) {
+                const data = await response.json();
+                aiAdvice.textContent = `AI Advice: ${data.advice}`;
+                aiAdvice.style.display = 'block'; // Show advice on click
+            } else {
+                aiAdvice.textContent = 'Failed to get advice. Try again.';
+            }
+        } catch (error) {
+            console.error('Error fetching AI advice:', error);
+            aiAdvice.textContent = 'An error occurred while fetching advice.';
+        }
+    });
+});
+
     </script>
 </body>
 </html>
