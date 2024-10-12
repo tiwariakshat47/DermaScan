@@ -33,19 +33,19 @@
             margin: 0 auto;
             width: 50%;
         }
-        .upload-section input[type="file"] {
-            margin: 20px 0;
+        .ai-advice {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
         }
-        .upload-section button {
+        #showAdviceButton {
+            margin-top: 10px;
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-        }
-        .upload-section button:hover {
-            background-color: #45a049;
         }
         footer {
             text-align: center;
@@ -55,10 +55,6 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-        }
-        #loadingMessage {
-            margin-top: 20px;
-            color: #555;
         }
     </style>
 </head>
@@ -72,11 +68,18 @@
             <h2>Live Camera Feed</h2>
             <p id="loadingMessage">Waiting for camera access...</p>
             <div style="text-align: center;">
-                <img id="videoFeed" width="700" height="480" style="display:none; margin: auto; display: block;">
+                <img id="videoFeed" width="800" height="480" style="display:none; margin: auto; display: block;">
             </div>
-            
+            <button id="showAdviceButton">Show AI Advice</button>
+            <div class="ai-advice" id="aiAdvice"></div>
         </div>
-        <div id="result" style="margin-top: 20px;"></div>
+
+        <div class="chat-section">
+            <h2>Chat with our Expert</h2>
+            <div class="chat-log" id="chatLog"></div>
+            <input type="text" id="userInput" placeholder="Type your ailment here...">
+            <button id="sendButton">Send</button>
+        </div>
     </main>
 
     <footer>
@@ -85,29 +88,49 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const videoFeed = document.getElementById('videoFeed');
-            const loadingMessage = document.getElementById('loadingMessage');
+    const videoFeed = document.getElementById('videoFeed');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const showAdviceButton = document.getElementById('showAdviceButton');
+    const aiAdvice = document.getElementById('aiAdvice');
 
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    loadingMessage.textContent = "Camera access granted, loading video...";
-
-                    fetch('/start_camera')
-                        .then(response => {
-                            if (response.ok) {
-                                const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
-                                videoFeed.src = videoFeedUrl;
-                                videoFeed.style.display = 'block'; 
-                                loadingMessage.style.display = 'none';
-                            }
-                        })
-                        .catch(err => console.error('Error starting camera on server:', err));
+    // Request camera access
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+            loadingMessage.textContent = "Camera access granted, loading video...";
+            fetch('/start_camera')
+                .then(response => {
+                    if (response.ok) {
+                        const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
+                        videoFeed.src = videoFeedUrl;
+                        videoFeed.style.display = 'block';
+                        loadingMessage.style.display = 'none';
+                    }
                 })
-                .catch(function (err) {
-                    loadingMessage.textContent = "Camera access denied or not available.";
-                    console.error('Error accessing camera: ', err);
-                });
+                .catch(err => console.error('Error starting camera on server:', err));
+        })
+        .catch(function (err) {
+            loadingMessage.textContent = "Camera access denied or not available.";
+            console.error('Error accessing camera: ', err);
         });
+
+    // Fetch AI advice only when the button is clicked
+    showAdviceButton.addEventListener('click', async function () {
+        try {
+            const response = await fetch('/get_advice'); // Generate advice only here
+            if (response.ok) {
+                const data = await response.json();
+                aiAdvice.textContent = `AI Advice: ${data.advice}`;
+                aiAdvice.style.display = 'block'; // Show advice on click
+            } else {
+                aiAdvice.textContent = 'Failed to get advice. Try again.';
+            }
+        } catch (error) {
+            console.error('Error fetching AI advice:', error);
+            aiAdvice.textContent = 'An error occurred while fetching advice.';
+        }
+    });
+});
+
     </script>
 </body>
 </html>
