@@ -56,6 +56,10 @@
             bottom: 0;
             width: 100%;
         }
+        #loadingMessage {
+            margin-top: 20px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +70,11 @@
     <main>
         <div class="upload-section">
             <h2>Live Camera Feed</h2>
-            <img id="videoFeed" width="800" height="480">
+            <p id="loadingMessage">Waiting for camera access...</p>
+            <div style="text-align: center;">
+                <img id="videoFeed" width="700" height="480" style="display:none; margin: auto; display: block;">
+            </div>
+            
         </div>
         <div id="result" style="margin-top: 20px;"></div>
     </main>
@@ -76,9 +84,30 @@
     </footer>
 
     <script>
-        // Dynamically set the video feed URL based on current environment
-        const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
-        document.getElementById('videoFeed').src = videoFeedUrl;
+        document.addEventListener('DOMContentLoaded', function () {
+            const videoFeed = document.getElementById('videoFeed');
+            const loadingMessage = document.getElementById('loadingMessage');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    loadingMessage.textContent = "Camera access granted, loading video...";
+
+                    fetch('/start_camera')
+                        .then(response => {
+                            if (response.ok) {
+                                const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
+                                videoFeed.src = videoFeedUrl;
+                                videoFeed.style.display = 'block'; 
+                                loadingMessage.style.display = 'none';
+                            }
+                        })
+                        .catch(err => console.error('Error starting camera on server:', err));
+                })
+                .catch(function (err) {
+                    loadingMessage.textContent = "Camera access denied or not available.";
+                    console.error('Error accessing camera: ', err);
+                });
+        });
     </script>
 </body>
 </html>
