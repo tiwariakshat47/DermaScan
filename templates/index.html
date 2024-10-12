@@ -65,12 +65,8 @@
 
     <main>
         <div class="upload-section">
-            <h2>Upload Your Face Image</h2>
-            <form id="uploadForm" enctype="multipart/form-data">
-                <input type="file" id="imageUpload" accept="image/*" required>
-                <br>
-                <button type="submit">Submit</button>
-            </form>
+            <h2>Live Camera Feed</h2>
+            <img src="http://127.0.0.1:5000/video_feed" width="800" height="480">
         </div>
         <div id="result" style="margin-top: 20px;"></div>
     </main>
@@ -78,24 +74,5 @@
     <footer>
         <p>&copy; 2024 Acne Classification System</p>
     </footer>
-
-    <script>
-        document.getElementById('uploadForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const fileInput = document.getElementById('imageUpload');
-            const resultDiv = document.getElementById('result');
-
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                resultDiv.innerHTML = `<p>Processing image: ${file.name}</p>`;
-                
-                // Here, you would add code to handle the image upload to your backend (e.g., with fetch API)
-                // For demonstration purposes, we just show the file name.
-                resultDiv.innerHTML += `<p>Image uploaded successfully!</p>`;
-            } else {
-                resultDiv.innerHTML = '<p>Please select an image file.</p>';
-            }
-        });
-    </script>
 </body>
 </html>
