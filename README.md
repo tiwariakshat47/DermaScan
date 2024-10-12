@@ -9,4 +9,9 @@ open a terminal and cd into DermaScan and type "pip install -r requirements.txt"
 
 ### run the app
 in order to run the app do:
+
+in your terminal run: export OPENAI_API_KEY="[API_KEY_GOES_HERE]"
+
+then run 
+
 "python3 app.py"
