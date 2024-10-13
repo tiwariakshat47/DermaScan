@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Scan - DermaScan{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
+<main>
+  <div class="container mt-4"> 
+      <div class="row">
+          <div class="col-md-6 d-flex flex-column align-items-center">
+              <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/camera.png') }}" alt="Camera" style="width: 30px; height: 30px; margin-right: 10px; align-self: center; margin-top: 25px;">
+                <h1 class="me-2" style="line-height:20px; margin-top: 40px">Your Camera</h1>
+              </div>
+              <div class="camera-window" style="margin-top: 5%; border: 3px solid var(--light-blue); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
+                  <div class="upload-section" style="margin-top: 10%">
+                    <p id="loadingMessage" style="font-weight: 600;text-align: center; color:var(--light-blue)">Waiting for camera access...</p>
+                    <div style="text-align: center;">
+                        <img id="videoFeed" style="width: 100%; height: 400px; object-fit: cover; display: none; margin: auto; display: block; color:red;" autoplay></img>
+                    </div>
+                </div>
+              </div>
+          </div>
+
+          <div class="col-md-6 d-flex flex-column align-items-center">
+              <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/chat.png') }}" alt="Chatbot" style="width: 30px; height: 30px; margin-right: 10px; align-self: center; margin-top: 25px;">
+                <h1 class="me-2" style="line-height:20px; margin-top: 40px;">Derma-Chatbot</h1>
+              </div>
+              <div class="chatbox" style="margin-top: 5%; border: 3px solid var(--border); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
+                <div class="chat-messages" style="flex-grow: 1; padding: 10px; overflow-y: auto; background-color: var(--shade-dark);">
+                    <div id="messages"></div>
+                </div>
+              </div>
+          </div>
+      </div>
+
+  </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const videoFeed = document.getElementById('videoFeed');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const messagesContainer = document.getElementById('messages');
+
+        let curr_acne = []
+
+        let count = 0
+
+        // Request camera access
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                loadingMessage.textContent = "Camera access granted, loading video...";
+                fetch('/start_camera')
+                    .then(response => {
+                        if (response.ok) {
+                            const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
+                            videoFeed.src = videoFeedUrl;
+                            videoFeed.style.display = 'block';
+                            loadingMessage.style.display = 'none';
+                        }
+                    })
+                    .catch(err => console.error('Error starting camera on server:', err));
+            })
+            .catch(function (err) {
+                loadingMessage.textContent = "Camera access denied or not available.";
+                console.error('Error accessing camera: ', err);
+            });
+
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+                
+                const messageText = document.createElement('p');
+                messageText.style.paddingTop = '10px';
+                messageText.innerHTML = text;
+
+                messageDiv.appendChild(messageText);
+
+                const timestamp = document.createElement('span');
+                timestamp.className = 'timestamp';
+                const currentTime = new Date();
+                timestamp.style.color = 'var(font-primary)';
+                timestamp.style.fontSize = '0.8em';
+                timestamp.style.display = 'block';
+                timestamp.style.fontWeight = 600;
+                timestamp.textContent = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+                const containerDiv = document.createElement('div');
+                containerDiv.style.display = 'flex';
+                containerDiv.style.flexDirection = 'column';
+
+                containerDiv.appendChild(messageDiv);
+                containerDiv.appendChild(timestamp);
+
+                messagesContainer.appendChild(containerDiv);
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                setTimeout(() => {
+                    messageDiv.style.opacity = '1'; 
+                }, 100); 
+            }
+
+            function getResponse() {
+                fetch('/get_prediction')
+                    .then(response => response.json())
+                    .then(data => {
+                        const lastPrediction = data.last_prediction
+
+                        if (JSON.stringify(curr_acne) !== JSON.stringify(lastPrediction)) {
+                            fetchAdvice()
+                            curr_acne = lastPrediction
+                        }
+                        else {
+                            count += 1;
+                        }
+
+                        if (count === 3) {
+                            addMessage("I'm not recognizing any acne, either try better lighting or maybe your skin is already clear!");
+                            count = 0;
+                        }
+
+                    })
+                    .catch(err => console.error('Error fetching last prediction', err))
+            }
+
+            function fetchAdvice() {
+                fetch('/get_advice')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.advice) {
+                            addMessage(data.advice);
+                        }
+                    })
+                    .catch(err => console.error('Error fetching advice:', err));
+            }
+
+
+            setInterval(getResponse, 5000);
+
+
+        // Example messages
+        setTimeout(() => addMessage("Welcome to DermaScan! Please allow permission to use your camera."), 1000);
+        setTimeout(() => addMessage("If you need help, please visit our <a href='/'>Home</a> page."), 3000);
+
+    });
+</script>
+
+{% endblock %}

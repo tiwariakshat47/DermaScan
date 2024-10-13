@@ -93,7 +93,11 @@ def get_openai_response(predicted_class_name):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', pages = [['Home', 'index'],['Scan', 'scan']])
+
+@app.route('/scan')
+def scan():
+    return render_template('scan.html', pages = [['Home', 'index'],['Scan', 'scan']])
 
 @app.route('/video_feed')
 def video_feed():
@@ -110,12 +114,20 @@ def start_camera():
 
 @app.route('/get_advice')
 def get_advice():
-    # Use the latest prediction to generate advice
     if last_prediction["class"]:
         openai_response = get_openai_response(last_prediction["class"])
         return jsonify({'advice': openai_response})
     else:
         return jsonify({'advice': "No prediction available yet."})
+
+# Helper function for frontend
+
+@app.route('/get_prediction', methods=['GET'])
+def get_last_prediction():
+    if 'confidence' in last_prediction:
+        last_prediction['confidence'] = float(last_prediction['confidence'])
+
+    return jsonify({'last_prediction': last_prediction})
 
 if __name__ == '__main__':
     app.run(debug=True)
