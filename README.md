@@ -8,19 +8,16 @@ _Empowering Young Lives, One Scan at a Time_
 
 Millions of children around the world suffer from skin conditions like acne but lack access to dermatological resources due to financial, geographical, or social barriers. This often leads to low self-esteem, social isolation, and untreated skin issues that can have lasting effects on their mental and physical health.
 
-DermaScan empowers children and their guardians with an easy-to-use app that:
+DermaScan empowers children and their guardians with an easy-to-use web app that:
 
-Using advanced image recognition technology, users can take pictures of their skin issues and receive an instant analysis of their acne type, helping them understand their condition.
+Using advanced image recognition technology, users can see a real-time video of their skin issues and receive an instant analysis of their acne type, helping them understand their condition.
 
 Based on the diagnosis, the app provides tailored skincare routines, treatment options, and educational resources about acne management, all suited for different skin types and sensitivities.
 
-Resource Access: The app partners with dermatologists and health organizations to offer telehealth consultations for users who require further professional guidance, ensuring they receive comprehensive care.
-
-Impact: By making dermatological knowledge accessible to those who need it most, DermaScan aims to:
-
-Boost the self-esteem and confidence of children by addressing their skin concerns.
-Educate families about proper skincare and treatment options.
-Reduce the stigma associated with acne through community support and awareness.
+By making dermatological knowledge accessible to those who need it most, DermaScan aims to:
+* Boost the self-esteem and confidence of children by addressing their skin concerns.
+* Educate families about proper skincare and treatment options.
+* Reduce the stigma associated with acne through community support and awareness.
 
 **Join us in revolutionizing skincare for underprivileged children. Support DermaScan in our mission to ensure that every child has the tools they need to understand and care for their skin, helping them shine brightly in every aspect of their lives. Together, we can make a difference—one scan at a time.**
 
