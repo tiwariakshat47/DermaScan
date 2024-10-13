@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Scan - DermaScan{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<main>
+  <div class="container mt-4">
+      <div class="row">
+          <div class="col-md-6 d-flex flex-column align-items-center">
+              <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/camera.png') }}" alt="Camera" style="width: 30px; height: 30px; margin-right: 10px; align-self: center;">
+                <h1 class="me-2" style="line-height: 30px;">Your Camera</h1>
+              </div>
+              <div class="camera-window" style="margin-top: 20px; border: 3px solid var(--light-blue); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
+                  <div class="upload-section" style="margin-top: 10%">
+                    <h2 style="font-weight: 600;text-align: center; background-color: white; border-radius: 10px; max-width: 50%; margin-left: 25%; border: 2px solid var(--border);box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">Live Camera Feed</h2>
+                    <p id="loadingMessage" style="font-weight: 600;text-align: center; color:var(--light-blue)">Waiting for camera access...</p>
+                    <div style="text-align: center;">
+                        <video id="videoFeed" width="100" height="100" style="display:none; margin: auto; display: block;" autoplay></video>
+                    </div>
+                </div>
+              </div>
+          </div>
+
+          <div class="col-md-6 d-flex flex-column align-items-center">
+              <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/chat.png') }}" alt="Chatbot" style="width: 30px; height: 30px; margin-right: 10px; align-self: center;">
+                <h1 class="me-2" style="line-height: 30px;">Derma-Chatbot</h1> <!-- Adjust line-height to center with the icon -->
+              </div>
+              <div class="chatbox" style="margin-top: 20px; border: 3px solid var(--border); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
+                  <div class="chat-messages" style="flex-grow: 1; padding: 10px; overflow-y: auto; background-color: var(--shade-dark);">
+                      <div id="messages">
+                          <div class="message bot-message">
+                              <p><strong>Bot:</strong> Welcome to DermaScan! How can I assist you today?</p>
+                          </div>
+                          <div class="message bot-message">
+                              <p><strong>Bot:</strong> Welcome to DermaScan! DermaScan DermaScan DermaScanDer maScanDermaS canDermaS can How can I assist you today?</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div class="text-center mt-4">
+          <button class="btn btn-success me-2" id="getProductsButton">Get Recommended Products</button>
+          <button class="btn btn-secondary" id="refreshBotButton">Refresh Bot</button>
+      </div>
+  </div>
+</main>
+
+<style>
+  .message {
+      background-color: white;
+      border-radius: 10px;
+      padding: 8px;
+      margin: 10px 0; 
+      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      max-width: 90%;
+      font-weight: 600;
+      word-wrap: break-word;
+  }
+  .bot-message {
+      align-self: flex-start;
+  }
+  .user-message {
+      align-self: flex-end;
+  }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const videoFeed = document.getElementById('videoFeed');
+    const videoFeedUrl = `${window.location.origin}/video_feed`;
+    const loadingMessage = document.getElementById('loadingMessage');
+
+    // Request camera access
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+            loadingMessage.textContent = "Camera access granted, loading video...";
+            fetch('/start_camera')
+                .then(response => {
+                    if (response.ok) {
+                        const videoFeedUrl = `${window.location.origin.replace(/^https/, 'http')}/video_feed`;
+                        videoFeed.src = videoFeedUrl;
+                        videoFeed.style.display = 'block';
+                        loadingMessage.style.display = 'none';
+                    }
+                })
+                .catch(err => console.error('Error starting camera on server:', err));
+        })
+        .catch(function (err) {
+            loadingMessage.textContent = "Camera access denied or not available.";
+            console.error('Error accessing camera: ', err);
+        });
+    });
+
+</script>
+{% endblock %}
