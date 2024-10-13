@@ -4,7 +4,7 @@
 **DermaScan**
 _Empowering Young Lives, One Scan at a Time_
 
-**Overview**: DermaScan is a revolutionary mobile app designed to bridge the gap in dermatological care for underprivileged children who struggle with skin issues, particularly acne. By leveraging cutting-edge technology and artificial intelligence, DermaScan provides users with a reliable, user-friendly platform to self-diagnose various types of acne and receive personalized recommendations for care and treatment.
+**Overview**: DermaScan is a revolutionary full stack app designed to bridge the gap in dermatological care for underprivileged children who struggle with skin issues, particularly acne. By leveraging cutting-edge technology and artificial intelligence, DermaScan provides users with a reliable, user-friendly platform to self-diagnose various types of acne and receive personalized recommendations for care and treatment.
 
 Millions of children around the world suffer from skin conditions like acne but lack access to dermatological resources due to financial, geographical, or social barriers. This often leads to low self-esteem, social isolation, and untreated skin issues that can have lasting effects on their mental and physical health.
 
