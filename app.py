@@ -93,7 +93,7 @@ def get_openai_response(predicted_class_name):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('scan.html')
 
 @app.route('/video_feed')
 def video_feed():
