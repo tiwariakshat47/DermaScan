@@ -36,10 +36,6 @@
           </div>
       </div>
 
-      <div class="text-center mt-4">
-          <button class="btn btn-success me-2" id="getProductsButton">Get Recommended Products</button>
-          <button class="btn btn-secondary" id="refreshBotButton">Refresh Bot</button>
-      </div>
   </div>
 </main>
 
@@ -51,6 +47,7 @@
 
         let curr_acne = []
 
+        let count = 0
 
         // Request camera access
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -117,6 +114,14 @@
                             fetchAdvice()
                             curr_acne = lastPrediction
                         }
+                        else {
+                            count += 1;
+                        }
+
+                        if (count === 3) {
+                            addMessage("I'm not recognizing any acne, either try better lighting or maybe your skin is already clear!");
+                            count = 0;
+                        }
 
                     })
                     .catch(err => console.error('Error fetching last prediction', err))
@@ -140,7 +145,6 @@
         // Example messages
         setTimeout(() => addMessage("Welcome to DermaScan! Please allow permission to use your camera."), 1000);
         setTimeout(() => addMessage("If you need help, please visit our <a href='/'>Home</a> page."), 3000);
-        setTimeout(() => addMessage("Third message!"), 5000);
 
     });
 </script>

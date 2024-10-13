@@ -124,6 +124,9 @@ def get_advice():
 
 @app.route('/get_prediction', methods=['GET'])
 def get_last_prediction():
+    if 'confidence' in last_prediction:
+        last_prediction['confidence'] = float(last_prediction['confidence'])
+
     return jsonify({'last_prediction': last_prediction})
 
 if __name__ == '__main__':
