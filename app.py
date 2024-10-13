@@ -120,5 +120,11 @@ def get_advice():
     else:
         return jsonify({'advice': "No prediction available yet."})
 
+# Helper function for frontend
+
+@app.route('/get_prediction', methods=['GET'])
+def get_last_prediction():
+    return jsonify({'last_prediction': last_prediction})
+
 if __name__ == '__main__':
     app.run(debug=True)

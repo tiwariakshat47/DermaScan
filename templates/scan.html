@@ -49,6 +49,9 @@
         const loadingMessage = document.getElementById('loadingMessage');
         const messagesContainer = document.getElementById('messages');
 
+        let curr_acne = []
+
+
         // Request camera access
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function (stream) {
@@ -104,18 +107,34 @@
                 }, 100); 
             }
 
+            function getResponse() {
+                fetch('/get_prediction')
+                    .then(response => response.json())
+                    .then(data => {
+                        const lastPrediction = data.last_prediction
+
+                        if (JSON.stringify(curr_acne) !== JSON.stringify(lastPrediction)) {
+                            fetchAdvice()
+                            curr_acne = lastPrediction
+                        }
+
+                    })
+                    .catch(err => console.error('Error fetching last prediction', err))
+            }
+
             function fetchAdvice() {
                 fetch('/get_advice')
                     .then(response => response.json())
                     .then(data => {
                         if (data.advice) {
-                            addMessage(data.advice); // Update chatbox with advice
+                            addMessage(data.advice);
                         }
                     })
                     .catch(err => console.error('Error fetching advice:', err));
             }
 
-            setInterval(fetchAdvice, 5000);
+
+            setInterval(getResponse, 5000);
 
 
         // Example messages
