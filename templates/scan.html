@@ -29,11 +29,9 @@
                 <h1 class="me-2" style="line-height:20px; margin-top: 40px;">Derma-Chatbot</h1>
               </div>
               <div class="chatbox" style="margin-top: 5%; border: 3px solid var(--border); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
-                  <div class="chat-messages" style="flex-grow: 1; padding: 10px; overflow-y: auto; background-color: var(--shade-dark);">
-                      <div id="messages">
-
-                      </div>
-                  </div>
+                <div class="chat-messages" style="flex-grow: 1; padding: 10px; overflow-y: auto; background-color: var(--shade-dark);">
+                    <div id="messages"></div>
+                </div>
               </div>
           </div>
       </div>
@@ -71,25 +69,47 @@
                 console.error('Error accessing camera: ', err);
             });
 
-        // Function to add a message
-        function addMessage(text, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerHTML = `<p>${text}</p>`;
-            messagesContainer.appendChild(messageDiv);
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+                
+                const messageText = document.createElement('p');
+                messageText.style.paddingTop = '10px';
+                messageText.innerHTML = text;
 
-            // Scroll to the bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                messageDiv.appendChild(messageText);
 
-            // Use a slight delay for the animation
-            setTimeout(() => {
-                messageDiv.style.opacity = '1'; // Trigger the fade-in animation
-            }, 100); // 100 ms delay for the animation
-        }
+                const timestamp = document.createElement('span');
+                timestamp.className = 'timestamp';
+                const currentTime = new Date();
+                timestamp.style.color = 'var(font-primary)';
+                timestamp.style.fontSize = '0.8em';
+                timestamp.style.display = 'block';
+                timestamp.style.fontWeight = 600;
+                timestamp.textContent = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+                const containerDiv = document.createElement('div');
+                containerDiv.style.display = 'flex';
+                containerDiv.style.flexDirection = 'column';
+
+                containerDiv.appendChild(messageDiv);
+                containerDiv.appendChild(timestamp);
+
+                messagesContainer.appendChild(containerDiv);
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                setTimeout(() => {
+                    messageDiv.style.opacity = '1'; 
+                }, 100); 
+            }
+
 
         // Example messages
         setTimeout(() => addMessage("Welcome to DermaScan! Please allow permission to use your camera."), 1000);
         setTimeout(() => addMessage("If you need help, please visit our <a href='/'>Home</a> page."), 3000);
+        setTimeout(() => addMessage("Third message!"), 5000);
+
     });
 </script>
 
