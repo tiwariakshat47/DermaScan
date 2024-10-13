@@ -10,14 +10,14 @@
       <div class="row">
           <div class="col-md-6 d-flex flex-column align-items-center">
               <div class="d-flex align-items-center">
-                <img src="{{ url_for('static', filename='images/camera.png') }}" alt="Camera" style="width: 30px; height: 30px; margin-right: 10px; align-self: center; margin-top: 25px;">
-                <h1 class="me-2" style="line-height:20px; margin-top: 40px">Your Camera</h1>
+                <img src="{{ url_for('static', filename='images/camera.png') }}" alt="Camera" style="width: 30px; height: 30px; margin-right: 10px; align-self: center; margin-top: 70%;">
+                <h1 class="me-2" style="line-height:0px; margin-top: 75%">Your Camera</h1>
               </div>
-              <div class="camera-window" style="margin-top: 5%; border: 3px solid var(--light-blue); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
-                  <div class="upload-section" style="margin-top: 10%">
+              <div class="camera-window" style="margin-top: 5%; border-radius: 15px; width: 100%; height: 75vh; overflow: hidden;">
+                  <div class="upload-section" style="margin-top: 1%">
                     <p id="loadingMessage" style="font-weight: 600;text-align: center; color:var(--light-blue)">Waiting for camera access...</p>
                     <div style="text-align: center;">
-                        <img id="videoFeed" style="width: 100%; height: 400px; object-fit: cover; display: none; margin: auto; display: block; color:red;" autoplay></img>
+                        <img id="videoFeed" style="width: 80%; height: 80%; object-fit: cover; display: none; margin: auto; display: block; color:red; border-radius: 15px;box-shadow: 3px 3px 5px rgba(55, 54, 54, 0.5);" autoplay></img>
                     </div>
                 </div>
               </div>
@@ -45,11 +45,6 @@
         const loadingMessage = document.getElementById('loadingMessage');
         const messagesContainer = document.getElementById('messages');
 
-        let curr_acne = []
-
-        let count = 0
-
-        // Request camera access
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function (stream) {
                 loadingMessage.textContent = "Camera access granted, loading video...";
@@ -104,45 +99,45 @@
                 }, 100); 
             }
 
-            function getResponse() {
-                fetch('/get_prediction')
-                    .then(response => response.json())
-                    .then(data => {
-                        const lastPrediction = data.last_prediction
+        let curr_acne = null;
+        let confidenceThreshold = 0.70;
+        let count = 0;
 
-                        if (JSON.stringify(curr_acne) !== JSON.stringify(lastPrediction)) {
-                            fetchAdvice()
-                            curr_acne = lastPrediction
-                        }
-                        else {
-                            count += 1;
-                        }
+        function getResponse() {
+            fetch('/get_prediction')
+                .then(response => response.json())
+                .then(data => {
+                    const lastPrediction = data.last_prediction;
+                        if (lastPrediction.confidence > confidenceThreshold) {
+                            if (curr_acne == null) {
+                                fetchAdvice(lastPrediction.class);
+                                curr_acne = lastPrediction.class;
+                            } 
+                            else if (curr_acne !== lastPrediction.class) {
+                                fetchAdvice(lastPrediction.class);
+                                curr_acne = lastPrediction.class;
+                            }
+                             else {
+                                count += 1;
+                            }
+                    }
+                })
+                .catch(err => console.error('Error fetching last prediction', err));
+        }
 
-                        if (count === 3) {
-                            addMessage("I'm not recognizing any acne, either try better lighting or maybe your skin is already clear!");
-                            count = 0;
-                        }
+        function fetchAdvice(acneClass) {
+            fetch('/get_advice')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.advice) {
+                        addMessage(data.advice);
+                    }
+                })
+                .catch(err => console.error('Error fetching advice:', err));
+        }
 
-                    })
-                    .catch(err => console.error('Error fetching last prediction', err))
-            }
+        setInterval(getResponse, 5000);
 
-            function fetchAdvice() {
-                fetch('/get_advice')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.advice) {
-                            addMessage(data.advice);
-                        }
-                    })
-                    .catch(err => console.error('Error fetching advice:', err));
-            }
-
-
-            setInterval(getResponse, 5000);
-
-
-        // Example messages
         setTimeout(() => addMessage("Welcome to DermaScan! Please allow permission to use your camera."), 1000);
         setTimeout(() => addMessage("If you need help, please visit our <a href='/'>Home</a> page."), 3000);
 
