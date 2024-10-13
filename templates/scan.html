@@ -5,14 +5,14 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 <main>
-  <div class="container mt-4">
+  <div class="container mt-4"> 
       <div class="row">
           <div class="col-md-6 d-flex flex-column align-items-center">
               <div class="d-flex align-items-center">
-                <img src="{{ url_for('static', filename='images/camera.png') }}" alt="Camera" style="width: 30px; height: 30px; margin-right: 10px; align-self: center;">
-                <h1 class="me-2" style="line-height: 30px;">Your Camera</h1>
+                <img src="{{ url_for('static', filename='images/camera.png') }}" alt="Camera" style="width: 30px; height: 30px; margin-right: 10px; align-self: center; margin-top: 25px;">
+                <h1 class="me-2" style="line-height:20px; margin-top: 40px">Your Camera</h1>
               </div>
-              <div class="camera-window" style="margin-top: 20px; border: 3px solid var(--light-blue); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
+              <div class="camera-window" style="margin-top: 5%; border: 3px solid var(--light-blue); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
                   <div class="upload-section" style="margin-top: 10%">
                     <h2 style="font-weight: 600;text-align: center; background-color: white; border-radius: 10px; max-width: 50%; margin-left: 25%; border: 2px solid var(--border);box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">Live Camera Feed</h2>
                     <p id="loadingMessage" style="font-weight: 600;text-align: center; color:var(--light-blue)">Waiting for camera access...</p>
@@ -25,10 +25,10 @@
 
           <div class="col-md-6 d-flex flex-column align-items-center">
               <div class="d-flex align-items-center">
-                <img src="{{ url_for('static', filename='images/chat.png') }}" alt="Chatbot" style="width: 30px; height: 30px; margin-right: 10px; align-self: center;">
-                <h1 class="me-2" style="line-height: 30px;">Derma-Chatbot</h1> <!-- Adjust line-height to center with the icon -->
+                <img src="{{ url_for('static', filename='images/chat.png') }}" alt="Chatbot" style="width: 30px; height: 30px; margin-right: 10px; align-self: center; margin-top: 25px;">
+                <h1 class="me-2" style="line-height:20px; margin-top: 40px;">Derma-Chatbot</h1>
               </div>
-              <div class="chatbox" style="margin-top: 20px; border: 3px solid var(--border); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
+              <div class="chatbox" style="margin-top: 5%; border: 3px solid var(--border); border-radius: 15px; width: 100%; height: 75vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 2px 4px rgba(55, 54, 54, 0.5);">
                   <div class="chat-messages" style="flex-grow: 1; padding: 10px; overflow-y: auto; background-color: var(--shade-dark);">
                       <div id="messages">
                           <div class="message bot-message">
