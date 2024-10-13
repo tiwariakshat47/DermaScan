@@ -114,7 +114,6 @@ def start_camera():
 
 @app.route('/get_advice')
 def get_advice():
-    # Use the latest prediction to generate advice
     if last_prediction["class"]:
         openai_response = get_openai_response(last_prediction["class"])
         return jsonify({'advice': openai_response})

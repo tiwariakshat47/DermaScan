@@ -104,6 +104,19 @@
                 }, 100); 
             }
 
+            function fetchAdvice() {
+                fetch('/get_advice')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.advice) {
+                            addMessage(data.advice); // Update chatbox with advice
+                        }
+                    })
+                    .catch(err => console.error('Error fetching advice:', err));
+            }
+
+            setInterval(fetchAdvice, 5000);
+
 
         // Example messages
         setTimeout(() => addMessage("Welcome to DermaScan! Please allow permission to use your camera."), 1000);
