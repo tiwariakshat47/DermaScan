@@ -76,7 +76,8 @@ def generate_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def get_openai_response(predicted_class_name):
-    prompt = f"What can you suggest for treating {predicted_class_name}?"
+    current_confidence = round(last_prediction['confidence'],2) * 100
+    prompt = f"In one or two sentences, suggest ways to treat {predicted_class_name}. Be precise with what products you select. Remain professional and to the point. Ensure the responses are no more than two short sentences. Begin your response with '[<span style='color: red'>{current_confidence}% confident</span>] <span style= 'color: var(--light-blue-secondary)'>{predicted_class_name}</span>: '"
     try:
         response = openai.chat.completions.create(
             model="gpt-4o-mini",
