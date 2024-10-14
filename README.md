@@ -19,7 +19,7 @@ By making dermatological knowledge accessible to those who need it most, DermaSc
 * Educate families about proper skincare and treatment options.
 * Reduce the stigma associated with acne through community support and awareness.
 
-**Join us in revolutionizing skincare for underprivileged children. Support DermaScan in our mission to ensure that every child/teenagers has the tools they need to understand and care for their skin, helping them shine brightly in every aspect of their lives. Together, we can make a difference—one scan at a time.**
+**Join us in revolutionizing skincare for underprivileged children. Support DermaScan in our mission to ensure that every child/teenager has the tools they need to understand and care for their skin, helping them shine brightly in every aspect of their lives. Together, we can make a difference—one scan at a time.**
 
 ## Setup dependencies
 ### Clone Repo
